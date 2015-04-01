@@ -40,11 +40,8 @@ public class Robot extends IterativeRobot {
 	PIDController DriveControll;
 	GearShifter gearBoxShifter;
 	pidControl motors;
-	double level1 = 1000;
-	double level2 = 2000;
-	double level3 = 3000;
-	double level4 = 4000;
-	double level5 = 5000;
+	double[] level = {0,1000,2000,3000,4000,5000};
+	
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -59,23 +56,26 @@ public class Robot extends IterativeRobot {
 		encoderlifter = new Encoder(4, 5);
 		Motor1 = new CanTalonSRX(5);
 		Motor4 = new CanTalonSRX(6);
-		MotorBackLeft = new org.usfirst.frc.team1482.newTalonTest(2);
-		MotorBackRight = new org.usfirst.frc.team1482.newTalonTest(1);
-		MotorFrontLeft = new org.usfirst.frc.team1482.newTalonTest(3);
+		MotorBackLeft = new org.usfirst.frc.team1482.newTalonTest(1);
+		MotorBackRight = new org.usfirst.frc.team1482.newTalonTest(3);
+		MotorFrontLeft = new org.usfirst.frc.team1482.newTalonTest(2);
 		MotorFrontRight = new org.usfirst.frc.team1482.newTalonTest(4);
 		gearBoxShifter = new GearShifter(0, 1);
 		Drive = new RobotDrive(MotorFrontLeft, MotorBackLeft, MotorFrontRight,
 				MotorBackRight);
 
+		
 		motors = new pidControl(Motor1, Motor4);
 
 		DriveControll = new PIDController(0.001, 0, 0.00015, encoderlifter,
 				motors);
+		
 		encoderleft.setDistancePerPulse(0.11);
 		encoderright.setDistancePerPulse(0.11);
 		
 
 	}
+	
 	boolean finish1 = false;
 	boolean finish2 = false;
 	// boolean for the autonomous code
@@ -131,7 +131,6 @@ public class Robot extends IterativeRobot {
 			
 		} else if(distance >= 12) {
 			Drive.arcadeDrive(0, 0);
-			System.out.println("Ryan is awesome.");
 			
 		}
 
@@ -172,7 +171,8 @@ public class Robot extends IterativeRobot {
 	boolean state = false;
 	int count = 0;
 	int remainder = 0;
-
+	double heightSetpoint= 0;
+	int selectedLevel = 0;
 	public void teleopPeriodic() {
 		leftspeed = -encoderleft.getRate();
 		rightspeed = encoderright.getRate();
@@ -197,15 +197,18 @@ public class Robot extends IterativeRobot {
 		// Motor1.Set(y_value);
 		// Motor4.Set(y_value);
 		Drive.arcadeDrive(x_value, y_value);
-		// state = !state;
+		heightSetpoint = launchpad.getRawAxis(1);
+		selectedLevel = getLevelFromVoltage(heightSetpoint);
+		DriveControll.setSetpoint(level[selectedLevel]);
 
-		//
-		// launchpad.setOutput(1, remainder ==0);
-		// launchpad.setOutput(2, remainder ==0);
-		// launchpad.setOutput(3, remainder ==0);
-		// launchpad.setOutput(4, remainder ==0);
-		// launchpad.setOutput(5, remainder ==0);
-		// launchpad.setOutput(6, remainder ==0);
+		
+	}
+	
+	public int getLevelFromVoltage(double voltage){
+		//TODO: Add code to convert voltage to the selected level
+		System.out.println(voltage);
+		
+		return (int) voltage;
 	}
 
 	/**
